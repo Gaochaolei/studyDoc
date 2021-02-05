@@ -1,0 +1,26 @@
+java面试常考算法题整理
+
+1、各种排序算法的实现（重点是快速排序、堆排序、归并排序）找到数组中第K个最大的元素，利用堆的特性实现
+2、查找（重点是二分查找、二分查找查出第一次出现的那个值，旋转数组的二分查找）
+3、栈（栈的应用，波兰表达式，判断（）括号匹配的合法性）和队列的实现，可以用数组也可以用链表（优先队列的实现，结合堆排序）
+4、链表的反转、删除链表的倒数第N个节点、如何只遍历一次找到链表的中间节点（双指针的思想要掌握）如何快速的找到两个链表的交点、如何判断一个链表是否有环并且如何找到链表的入环点
+https://blog.csdn.net/cjh_android/article/details/82899586
+5、二叉树的前、中、后序遍历，按层次遍历（结合使用队列实现），（如何校验二叉树是否是完全二叉树，二叉树的锯齿遍历，结合使用栈实现），给出二叉树的最大深度（可以递归实现）
+校验一棵二叉树是否是完全二叉树的代码：https://blog.csdn.net/weixin_43729854/article/details/105014292
+6、有向无环图的深度优先遍历、广度优先遍历、拓卜排序（如何检查有向图中有没有环路存在，使用拓卜排序）
+有向无环图的深度优先和广度优先遍历：https://blog.csdn.net/weixin_41596800/article/details/108089752
+如何检查有向图中有没有环路存在：https://blog.csdn.net/login_sonata/article/details/78002042
+7、实现一个高效的LRU（最近最少使用缓存，MAP+双向链表实现）
+https://leetcode-cn.com/problems/lru-cache/solution/lruhuan-cun-ji-zhi-by-leetcode-solution/
+8、用递归的方式实现菲波那契数列，用数组去实现，用固定的几个变量去实现，这种可以一层层优化的问题也经常会问到的
+斐波那契数列：https://leetcode-cn.com/problems/fei-bo-na-qi-shu-lie-lcof/solution/mian-shi-ti-10-i-fei-bo-na-qi-shu-lie-dong-tai-gui/
+拓展题目（爬楼梯）: https://leetcode-cn.com/problems/climbing-stairs/solution/pa-lou-ti-by-leetcode-solution/
+9、分别用递归和循环的方式实现检查一个字符串是否是回文字符串
+https://leetcode-cn.com/problems/valid-palindrome/solution/yan-zheng-hui-wen-chuan-by-leetcode-solution/
+https://leetcode-cn.com/problems/valid-palindrome-ii/solution/yan-zheng-hui-wen-zi-fu-chuan-ii-by-leetcode-solut/
+10、写一个方法将字符串“123”转成整数123，这道题会综合考察你的防御式编程（参数合法性校验、异常处理、编程风格、注释、转换业务逻辑思路等）可以参考Integer的valuesOf方法的实现，或者是parseInt的方法实现
+https://leetcode-cn.com/problems/ba-zi-fu-chuan-zhuan-huan-cheng-zheng-shu-lcof/solution/mian-shi-ti-67-ba-zi-fu-chuan-zhuan-huan-cheng-z-4/
+https://leetcode-cn.com/problems/string-to-integer-atoi/solution/zi-fu-chuan-zhuan-huan-zheng-shu-atoi-by-leetcode-/
+11、单例模式（支持线程安全的方式）、观察者模式这两个需要能写出代码太常用了
+单例模式的各种实现方式：https://www.cnblogs.com/CodeGuy/p/3580486.html
+观察者模式代码实现和优缺点分析：https://blog.csdn.net/hyyyya/article/details/109203453
