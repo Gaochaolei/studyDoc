@@ -1,0 +1,122 @@
+1、java中的集合类有哪些？
+最顶层是Collection接口，Collection接口继承了Iterable接口，这样所有的集合只需要实现迭代器的方法就好了
+List  ArrayList、LinkedList、Vector、Stack（继承了vector，也是线程安全的）
+Set 不重复 HashSet（无序）、TreeSet（按key排序）、LinkedHashSet（按插入顺序排序）
+Map  Hashtable（也继承了Map接口，线程安全，使用sychronize关键字实现，效率低） key不重复 HashMap（无序，红黑树优化，负载因子、扩容）、TreeMap（按key排序）、LinkedHashMap（按插入顺序排序）ConcrrentHashMap（并发，分段锁、CAS乐观锁（自旋锁））
+Queue接口  BlockingQueue接口，ArrayBlockingQueue、LinkedBlockingQueue（这两个经常用于线程池框架，一个是有限长队列，一个是无限长队列）DelayQueue（延时队列，线程安全）PriorityQueue（优先队列，底层使用堆数据结构实现）
+
+集合类中的迭代器模式的原理，就是顶级接口Collection实现了Iterable接口，各自具体的实现类自己实现迭代器的方法
+集合类中的模版模式的原理，排序只针对List集合，在Collection接口中有两种sort方法，对应排序模版的两种实现，一种是类实现Comparable接口，另一种是直接传入Comparator比较器，体会这两种实现方案的区别。
+
+2、时间复杂度和空间复杂度的概念和数学上的意义？
+数据结构与算法（java语言版）第二章讲述
+
+3、乐观锁和悲观锁的区别，原理是什么？
+
+4、sychronized关键字的锁优化的原理，锁升级的过程是什么？
+
+5、mysql使用悲观锁和乐观锁的场景和原理？
+mysql中的可重复读的事务隔离级别的场景，使用mvcc实现的，在事务开始和执行的时候不需要加锁，只是在提交的时候校验版本号是否被其他线程修改过，如果被其他线程修改过这个版本号就会增加了，就不是事务开始执行时的版本号了，这个时候事务就会回滚，这种场景是乐观锁；悲观锁是在sql语句后加上for update，如select * from oder where ID= 1 for update；这种场景是使用了主键索引，where语句可以唯一确定一条记录，所以这个时候是加行锁，如果where条件中没有用到索引定位到唯一一条数据的话，这种场景下可能会触发表锁，使用for update方式的话，如果需要锁定多个表的多行的情况下，可能会触发死锁，使用时需要慎重，避免死锁问题的产生
+具体理论参考 分布式系统：概念与设计 原书第5版.pdf 这本书的第16章和第17章
+
+6、mysql的各种实务隔离级别的实现原理，以及各个实务隔离级别会存在哪些问题？读脏读，不可重复读，幻读，实务隔离级别，读未提交，读已提交，可重复读，串行化各个事务隔离级别使用的锁和使用原理
+具体参考 mysql技术内幕和InnoDB存储引擎锁实现原理
+
+7、innoDb的数据结构和特点，为什么这么设计？参考innoDB存储引擎那本书
+
+8 、幂等的概念和使用场景，举例子讲一下需要幂等实现的场景，和具体怎么实现的
+幂等的实现
+比如用户注册的场景：现在大多数用户注册时会依赖一个唯一的标示，比较常用的是手机号，以这个为例来说明，用户填入手机号，获取验证码，然后提交用户注册，这个时候，由于网络的原因，或者系统间rpc网络断开重试的原因，可能会导致同样一个用户的注册请求会多次请求到后端服务，具体如下：
+public Boolean registUser(String mobile,String passWord,String other){
+//开启事务, 从用户信息表用手机号查询用户是否已经存在了
+User user = userService.selectUserByMobile(mobile);
+//如果用于已经存在，则直接返回注册已成功即可，不需要存入数据库
+if（null != user）{
+return true;
+}else{
+//如果user是null,向数据库中保存用户信息
+//user表可以将mobile字段设置成非空和唯一索引
+try{
+int result = userService.saveUser(String mobile,String passWord,String other);
+if(result == 1){
+return true;
+}else{
+return false;
+}
+}catch(DuplicateKeyException e){
+//如果触发了唯一索引重复的异常，说明用户已经注册过了，幂等处理，返回true
+return true;
+}catch(Exception e){
+//这种异常是其他类型的业务错误，需要排查解决的
+return false;
+}
+}
+}
+上述过程就实现了幂等的一种情况
+//订单支付场景---使用乐观锁实现的例子
+https://www.jianshu.com/p/50462732a610
+
+//分布式系统幂等性实现方案
+https://www.cnblogs.com/wxgblogs/p/6639272.html
+
+9、业务会分成多个微服务去实现，这个时候如果要保证分布式系统的一致性的方案，分布式事务实现效率不高，还可以使用事务消息的方式来实现，BASE理论、CAP理论，一致性的种类（强一致、最终一致，柔性一致）
+分布式事务的实现原理---参照大数据日知录中，分布式事务实现原理部分内容
+分布式事务和事务消息文章 ---- https://cloud.tencent.com/developer/article/1528462
+
+
+10、高可用的实现方案：
+冗余：集群、备份，基于zookeeper做热备份
+监控：通过资源管理去做监控容器的进程，然后再去通过资源的统一管理调度系统去重新调起相关的容器，比如大数据中的YARN中对资源的管理，ResouceManager和NodeManager之间会通过心跳保持联系（监控），ResouceManager监控NodeManager节点如果不可用的话，可以快速发现不可用的节点，可以触发docker的重启、部署
+路由：一致性hash
+
+11、代码review的一些问题
+时间复杂度分析、空间复杂度分析、防御式编程、代码格式要符合规范、命名要有意义、逻辑代码要做封装、代码要加注释、团队协作意识
+ACM大学生编程竞赛——计算机专业的大学生编程竞赛
+自学的计算机知识：
+Java语言、C语言有了解
+计算机操作系统、计算机网络、数据库理论概念、分布式系统概念、数据结构和算法
+java的多线程和高并发编程、java的web编程、spring、Springboot、springmvc、mybatis、tomcat
+微服务框架 springCloud全家桶包含的组件（自己网上找一下资料，了解各个组件的功能和用途即可）
+数据库组件 mysql、ES
+RPC和序列化框架 dubbo、Thrift、protobuffer、http
+分布式一致性组件  zookeeper
+内存KV数据库  redis、memcache
+消息中间件 rabbitMQ、Kafka、RocketMQ（可以实现分布式事务）
+分布式事务组件 阿里的Seta框架
+
+
+12、TCP的三次握手和四次挥手的过程讲解
+
+13、CPU利用率100%的情况下该如何去排查问题和分析问题以及定位问题
+
+14、如何对你做的系统做优化，优化的思路是什么？
+
+15、如何评价一个智能语音助手的好坏，评价指标有哪些？（你可以去问一下王亚胜他们，这个总监可能会问你）扩展问题：怎么去评判多轮对话是否准备，怎么量化评估
+
+16、Springboot的SpringbootApplication注解做了哪些事情？
+
+17、mybatis的二级缓存的原理
+
+18、线程的状态有哪些？
+
+19、序列化和反序列化的好处，为什么要序列化？
+
+20、内存在线程中的可见性
+
+21、mysql数据库索引的种类，如何做优化？
+
+22、NIO框架和IO模型的原理
+
+23、类加载器的种类和类加载的原理
+
+24、innoDB和myIsam的区别
+
+25、linux的常用命令
+
+26、http中长链接的原理和应用场景、rpc框架底层的NIO使用长链接的场景，tomcat底层使用长链接的场景（tomcat单机一般配置长连接数在5w到10w左右）
+
+27、智能语音助手如何去做声纹识别的特征
+
+28、缓存和数据库的一致性
+
+29、二叉树，二叉搜索树、红黑树、b树，b-树、b+树的区别
